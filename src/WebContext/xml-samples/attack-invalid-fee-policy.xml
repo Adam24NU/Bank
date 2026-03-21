@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<statement>
+  <accountId>111111</accountId>
+  <currency>USD</currency>
+  <openingBalance>1000.00</openingBalance>
+  <feePolicy>FREE_ALL_FEES</feePolicy>
+  <transactions>
+    <transaction>
+      <type>credit</type>
+      <amount>250.00</amount>
+      <description>Salary payment</description>
+    </transaction>
+    <transaction>
+      <type>debit</type>
+      <amount>100.00</amount>
+      <description>Utility bill</description>
+    </transaction>
+  </transactions>
+</statement>

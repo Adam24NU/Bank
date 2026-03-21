@@ -81,6 +81,7 @@ public class AccountPageServlet extends HttpServlet {
             content.println("<a class='nav' href='account'>My Account</a>");
             content.println("<a class='nav' href='transfer'>Transfer</a>");
             content.println("<a class='nav' href='balance'>Customers</a>");
+            content.println("<a class='nav' href='xml-statement'>XML Statement</a>");
             content.println("<form action='logout' method='POST' class='logoutForm'>");
             content.println("<input value='Log Out' type='submit' class='logoutInput nav'>");
             content.println("</form>");

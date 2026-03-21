@@ -80,6 +80,7 @@ public class TargetServer {
 		context.addServlet(LogoutServlet.class, "/logout");
 		context.addServlet(CustomersListPageServlet.class, "/balance");
 		context.addServlet(TransferPageServlet.class, "/transfer");
+		context.addServlet(XMLStatementServlet.class, "/xml-statement");
 	}
 
 	/**
