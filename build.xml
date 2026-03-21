@@ -1,0 +1,34 @@
+<project name="Bank_Attack" default="compile" basedir=".">
+    <path id="classpath">
+        <fileset dir="src/lib">
+            <include name="*.jar"/>
+        </fileset>
+    </path>
+
+    <target name="compile">
+        <mkdir dir="built/classes"/>
+        <copy file="src/run.sh" todir="built/classes/"/>
+        <chmod file="built/classes/run.sh" perm="ugo+rx"/>
+        <copy todir="built/classes/WebContext">
+            <fileset dir="src/WebContext">
+                <include name="**"/>
+            </fileset>
+        </copy>
+        <javac srcdir="src" includeantruntime="false" destdir="built/classes/" debug="true">
+            <classpath refid="classpath"/>
+        </javac>
+
+        <!-- Target to create the database -->
+        <echo message="Creating sample database..."/>
+        <delete file="users.db"/>
+        <exec executable="sqlite3">
+            <arg value="./built/classes/users.db"/>
+            <arg value=".read src/create_db.sql"/>
+        </exec>
+
+    </target>
+
+    <target name="clean">
+        <delete dir="built"/>
+    </target>
+</project>

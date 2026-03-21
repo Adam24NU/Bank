@@ -1,0 +1,54 @@
+/* Navbar.css */
+body {
+	background-color: #e3f2fd;
+	color: #212121;
+	font-family: 'Roboto', Arial, sans-serif;
+}
+
+.logoutForm {
+	display: inline;
+}
+
+.logo {
+	margin: 0 auto;
+	display: block;
+}
+
+.logoutInput {
+	background: none;
+	border: none;
+	color: #0288d1;
+	font-size: 18px;
+	cursor: pointer;
+	transition: color 0.3s ease;
+}
+
+.logoutInput:hover {
+	text-decoration: underline;
+	color: #ff0000;
+}
+
+.nav {
+	color: #ffffff;
+	text-decoration: none;
+	padding: 0.5rem;
+	position: relative;
+	top: 40%;
+	transition: color 0.3s ease, text-decoration 0.3s ease;
+}
+
+#headerNav {
+	background-color: #000000;
+	padding: 10px 20px;
+	box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+	border-radius: 8px;
+}
+
+.hello {
+	margin-top: 5px;
+	margin-right: 20px;
+	float: right;
+	font-size: 20px;
+	color: #ffffff;
+	font-weight: 500;
+}

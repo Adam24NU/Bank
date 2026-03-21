@@ -1,0 +1,109 @@
+/* Modern Balance Section Design */
+body {
+	font-family: 'Roboto', Arial, sans-serif;
+	background-color: #f5f5f5;
+	color: #333;
+	margin: 0;
+	padding: 0;
+}
+
+.balance-heading {
+	text-align: center;
+	font-size: 32px;
+	font-weight: 700;
+	color: #333;
+	margin-top: 50px;
+	margin-bottom: 30px;
+	letter-spacing: 1px;
+}
+
+#container {
+	width: 80%;
+	margin: 0 auto;
+	background-color: #ffffff;
+	border-radius: 12px;
+	box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
+	padding: 30px;
+}
+
+ul {
+	list-style: none;
+	margin: 0;
+	padding: 0;
+}
+
+.ranking-item {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	padding: 15px;
+	border-bottom: 1px solid #f1f1f1;
+	transition: background-color 0.3s ease;
+}
+
+.ranking-item:hover {
+	background-color: #f7f7f7;
+}
+
+.ranking-info {
+	display: flex;
+	justify-content: center;
+	/* Center content horizontally */
+	align-items: center;
+	width: 100%;
+	font-size: 18px;
+	font-weight: 500;
+}
+
+.ranking-link {
+	text-decoration: none;
+	color: #333;
+	font-weight: 600;
+	transition: color 0.3s ease;
+	display: inline-block;
+	/* Ensure it behaves like a block for centering */
+	text-align: center;
+	/* Center text inside the link */
+	width: 100%;
+	/* Ensure the link takes full width of its container */
+}
+
+.ranking-num {
+	width: 20%;
+	font-size: 24px;
+	font-weight: 700;
+	color: #007BFF;
+}
+
+.ranking-credits {
+	font-size: 20px;
+	width: 20%;
+	font-weight: 600;
+	color: #333;
+	display: inherit;
+	direction: rtl;
+}
+
+.ranking-link:hover {
+	color: #007BFF;
+}
+
+@media (max-width: 768px) {
+	#container {
+		width: 95%;
+		padding: 20px;
+	}
+
+	.ranking-info {
+		flex-direction: column;
+		align-items: flex-start;
+	}
+
+	.ranking-num {
+		margin-bottom: 10px;
+	}
+
+	.ranking-credits {
+		font-size: 14px;
+	}
+}

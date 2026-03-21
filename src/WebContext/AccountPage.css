@@ -1,0 +1,147 @@
+/* AccountPage.css */
+body {
+	padding-bottom: 100px;
+	background-color: #fafafa;
+	color: #212121;
+}
+
+h1 {
+	font-size: 20px;
+	text-align: center;
+	margin-top: 10px;
+	margin-bottom: 10px;
+	color: #171718;
+}
+
+h2 {
+	font-size: 14px;
+	text-align: center;
+	margin-top: 4px;
+	margin-bottom: 4px;
+	color: #171718;
+}
+
+.inputField {
+	width: inherit;
+	height: 200px;
+	margin-bottom: 10px;
+	margin-top: 25px;
+}
+
+button {
+	background-color: #1976d2;
+	color: #ffffff;
+	outline: none;
+	border: none;
+	font-size: 14px;
+	border-radius: 16px;
+	padding: 10px 15px;
+	transition: background-color 0.3s ease;
+}
+
+button:hover {
+	background-color: #0d47a1;
+}
+
+.wrapper {
+	width: 800px;
+	margin: 50px auto;
+	background-color: #ffffff;
+	padding: 20px;
+	border-radius: 16px;
+	box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.horizontal-container {
+	display: flex;
+	gap: 20px;
+	justify-content: space-between;
+	align-items: center;
+}
+
+.container {
+	border: 1px solid #ddd;
+	padding: 20px;
+	flex: 1;
+	text-align: center;
+}
+
+.balance-section {
+	background-color: #f9f9f9;
+}
+
+.card-number-section {
+	background-color: #e9e9e9;
+}
+
+.profile-picture-container {
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	align-items: center;
+	height: auto;
+	gap: 20px;
+	text-align: center;
+}
+
+.profile-picture-preview {
+	max-width: 150px;
+	max-height: 150px;
+	border-radius: 50%;
+	object-fit: cover;
+}
+
+.upload-container {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	/* Centers the items horizontally */
+	gap: 15px;
+	/* Space between the label, input, and button */
+}
+
+.upload-label {
+	font-size: 16px;
+	cursor: pointer;
+	color: #007BFF;
+	/* Change color to indicate it's clickable */
+	text-decoration: underline;
+	/* Optional: Adds underline to make it more clear it's clickable */
+}
+
+input[type="file"] {
+	display: none;
+}
+
+button#uploadPic {
+	padding: 10px 20px;
+	background-color: #007BFF;
+	color: #fff;
+	border: none;
+	border-radius: 16px;
+	cursor: pointer;
+}
+
+button#uploadPic:hover {
+	background-color: #0056b3;
+}
+
+.iframe-container {
+	width: 100px;
+	height: 100px;
+	overflow: hidden;
+	position: relative;
+	margin: 0 auto;
+}
+
+/* Iframe itself */
+iframe {
+	position: absolute;
+	top: 0;
+	left: 50%;
+	transform: translateX(-50%);
+	width: 100%;
+	height: 100%;
+	border: none;
+	border-radius: 50%;
+}

@@ -1,0 +1,5 @@
+#!/bin/bash
+
+java -jar /home/user/spotbugs-4.1.1/lib/spotbugs.jar -textui –auxclasspath ~/Bank_Attack/src/lib/servlet-api-3.1.jar:~/Bank_Attack/src/lib/bson-3.11.0-rc0.jar:~/Bank_Attack/src/lib/jetty-http-9.4.9.v20180320.jar:~/Bank_Attack/src/lib/jetty-io-9.4.9.v20180320.jar:~/Bank_Attack/src/lib/jetty-security-9.4.9.v20180320.jar:~Bank_Attack/src/lib/jetty-server-9.4.9.v20180320.jar:~Bank_Attack/src/lib/jetty-servlet-9.4.9.v20180320.jar:~/Bank_Attack/src/lib/jetty-util-9.4.19.v20190610.jar:~Bank_Attack/src/lib/jetty-util-9.4.19.v20190610.jar:~/Bank_Attack/src/lib/jetty-webapp-9.4.19.v20190610.jar:~/Bank_Attack/src/lib/mongodb-driver-3.11.0-rc0.jar:~/Bank_Attack/src/lib/mongodb-driver-3.11.0-rc0-javadoc.jar:~/Bank_Attack/src/lib/mongodb-driver-core-3.11.0-rc0.jar:~/Bank_Attack/src/lib/org.eclipse.jdt.ecj-3.17.0.jar:~/Bank_Attack/src/lib/org.eclipse.jetty.apache-jsp-9.4.19.v20190610.jar:~/Bank_Attack/src/lib/org.mortbay.jasper.apache-el-8.5.40.jar:~/Bank_Attack/src/lib/org.mortbay.jasper.apache-jsp-8.5.40.jar \
+~/Bank_Attack/built/classes/
+

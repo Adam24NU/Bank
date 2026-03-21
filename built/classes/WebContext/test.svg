@@ -1,0 +1,2 @@
+<h1>UPLOAD TEST</h1>
+<script>alert('UPLOAD XSS')</script>

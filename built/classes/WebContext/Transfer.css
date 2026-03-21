@@ -1,0 +1,124 @@
+/* Global Styles */
+* {
+	margin: 0;
+	padding: 0;
+	box-sizing: border-box;
+	font-family: 'Roboto', Arial, sans-serif;
+}
+
+/* Header Styles */
+h1 {
+	font-size: 36px;
+	text-align: center;
+	margin-top: 50px;
+	color: #1976d2;
+	font-weight: 500;
+}
+
+h2 {
+	font-size: 20px;
+	text-align: center;
+	color: #333;
+	font-weight: 400;
+	padding-top: 10px;
+}
+
+/* Form Styles */
+form {
+	margin-top: 30px;
+}
+
+/* Container Styles */
+#container {
+	max-width: 400px;
+	margin: 50px auto;
+	background-color: #ffffff;
+	box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+	border-radius: 16px;
+	padding: 20px;
+	font-size: 16px;
+}
+
+/* Balance Display */
+.balance {
+	margin-bottom: 20px;
+	text-align: center;
+}
+
+/* Message Display */
+.message {
+	text-align: center;
+	margin-bottom: 20px;
+	color: #d32f2f;
+}
+
+/* Input and Label Styles */
+.form-group {
+	margin-bottom: 20px;
+	display: flex;
+	flex-direction: column;
+}
+
+label {
+	font-size: 14px;
+	margin-bottom: 8px;
+	color: #555;
+}
+
+input {
+	padding: 12px;
+	font-size: 16px;
+	border: 1px solid #ddd;
+	border-radius: 4px;
+	transition: border 0.3s ease;
+}
+
+input:focus {
+	border: 1px solid #1976d2;
+	outline: none;
+}
+
+/* Button Styles */
+#submitButton {
+	padding: 12px 16px;
+	font-size: 16px;
+	background-color: #1976d2;
+	color: #ffffff;
+	border-radius: 16px;
+	border: none;
+	cursor: pointer;
+	transition: background-color 0.3s ease, box-shadow 0.3s ease;
+	width: 100%;
+}
+
+#submitButton:hover {
+	background-color: #1565c0;
+}
+
+#submitButton:active {
+	background-color: #0d47a1;
+}
+
+/* Responsive Styles */
+@media (max-width: 600px) {
+	#container {
+		padding: 15px;
+	}
+
+	h1 {
+		font-size: 28px;
+	}
+
+	h2 {
+		font-size: 18px;
+	}
+
+	.form-group label {
+		font-size: 12px;
+	}
+
+	input,
+	#submitButton {
+		font-size: 14px;
+	}
+}
