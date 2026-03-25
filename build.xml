@@ -1,4 +1,4 @@
-<project name="Bank_Attack" default="compile" basedir=".">
+<project name="NorthStarBank" default="compile" basedir=".">
     <path id="classpath">
         <fileset dir="src/lib">
             <include name="*.jar"/>
@@ -26,7 +26,7 @@
             <classpath refid="classpath"/>
         </javac>
 
-        <echo message="Creating sample database..."/>
+        <echo message="Creating local template data..."/>
         <java classname="DatabaseBootstrap" fork="true" failonerror="true">
             <classpath>
                 <path refid="classpath"/>

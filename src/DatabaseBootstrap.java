@@ -7,7 +7,7 @@ import java.sql.SQLException;
 import java.sql.Statement;
 
 /**
- * Creates a clean SQLite database with seeded demo users and hashed passwords.
+ * Creates a clean local database with sample users for template exploration.
  */
 public class DatabaseBootstrap {
     private static final String DB_URL = "jdbc:sqlite:" + Paths.get("built", "classes", "users.db").toString();
@@ -41,19 +41,19 @@ public class DatabaseBootstrap {
 
         try (PreparedStatement statement = connection.prepareStatement(insertSql)) {
             insertUser(statement, "999999", "admin", "adminPassword", "admin",
-                    "Operations administrator account.", 0L);
+                    "Template administrator account for review workflows.", 0L);
             insertUser(statement, "111111", "user1", "user1Password", "normal",
-                    "Primary account holder for branch demo data.", 6701L);
+                    "Primary customer account used for template walkthroughs.", 6701L);
             insertUser(statement, "222222", "user2", "user2Password", "normal",
-                    "Retail banking customer with an active current account.", 5050L);
+                    "Everyday banking customer with an active checking balance.", 5050L);
             insertUser(statement, "333333", "user3", "user3Password", "normal",
-                    "Savings customer used for transfer demonstrations.", 950L);
+                    "Savings-focused customer account for transfer examples.", 950L);
             insertUser(statement, "444444", "user4", "user4Password", "normal",
-                    "High balance account used for leaderboard and profile checks.", 162230L);
+                    "Long-term customer account with a larger available balance.", 162230L);
             insertUser(statement, "555555", "user5", "user5Password", "normal",
-                    "Long-standing customer with a large balance sample.", 2147483666L);
+                    "Established customer account included for data variety.", 2147483666L);
             insertUser(statement, "666666", "user6", "user6Password", "normal",
-                    "Secondary large balance sample account.", 2147483666L);
+                    "Additional customer account for directory and transfer testing.", 2147483666L);
         }
     }
 

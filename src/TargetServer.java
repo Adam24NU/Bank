@@ -13,7 +13,7 @@ import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
 
 /**
- * Starts the embedded Jetty server and registers the servlet routes.
+ * Starts the local web server and registers the servlet routes.
  */
 public class TargetServer {
     private final Console terminal;

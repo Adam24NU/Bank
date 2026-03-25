@@ -7,7 +7,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Data-access layer for the banking demo.
+ * Data-access layer for the banking template.
  *
  * The application is intentionally small, so the DAO stays lightweight but all
  * SQL is centralized here to keep servlet code focused on HTTP behaviour.

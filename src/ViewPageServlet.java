@@ -55,16 +55,16 @@ public class ViewPageServlet extends HttpServlet {
         body.append("<main class='auth-shell'>");
         body.append("<section class='auth-hero'>");
         body.append("<div class='auth-hero__content'>");
-        body.append("<span class='badge'>Secure Demo Environment</span>");
-        body.append("<h1 class='auth-hero__title'>Modernized banking operations for a safer servlet application.</h1>");
+        body.append("<span class='badge'>NorthStar Bank Template</span>");
+        body.append("<h1 class='auth-hero__title'>A modern banking experience shaped for teams to adapt and extend.</h1>");
         body.append("<p class='auth-hero__copy'>")
-                .append("This refactored build keeps the original coursework flows but removes the unsafe demo shortcuts, ")
-                .append("tightens validation, and presents the app as a clean operations dashboard.")
+                .append("NorthStar Bank is a reusable banking web app template with a polished customer dashboard, ")
+                .append("clear internal workflows, and neutral starter content for local evaluation and customization.")
                 .append("</p>");
         body.append("<div class='hero-metrics'>");
-        body.append(metricCard("Embedded Jetty", "Hardened session and route handling"));
-        body.append(metricCard("SQLite", "Prepared statements and hashed passwords"));
-        body.append(metricCard("Responsive UI", "Single shared design system"));
+        body.append(metricCard("Accounts", "Review balances, profile details, and account information."));
+        body.append(metricCard("Transfers", "Move funds across placeholder customer accounts."));
+        body.append(metricCard("Directory", "Browse a clean internal customer overview."));
         body.append("</div>");
         body.append("</div>");
         body.append("</section>");
@@ -72,7 +72,7 @@ public class ViewPageServlet extends HttpServlet {
         body.append("<section class='auth-panel'>");
         body.append("<div class='card card--auth'>");
         body.append("<h2 class='section-title'>Sign in</h2>");
-        body.append("<p class='section-subtitle'>Use one of the seeded demo accounts to access the dashboard.</p>");
+        body.append("<p class='section-subtitle'>Use one of the included sample accounts to explore the template.</p>");
         body.append(HtmlUtil.alert("error", error));
         body.append("<form method='POST' action='/welcome' class='stack-lg'>");
         body.append("<div class='field'>");
@@ -88,8 +88,8 @@ public class ViewPageServlet extends HttpServlet {
         body.append("</form>");
         body.append("<div class='divider'></div>");
         body.append("<div class='demo-credentials'>");
-        body.append("<div><strong>Admin:</strong> admin / adminPassword</div>");
-        body.append("<div><strong>User:</strong> user1 / user1Password</div>");
+        body.append("<div><strong>Admin account:</strong> admin / adminPassword</div>");
+        body.append("<div><strong>Customer account:</strong> user1 / user1Password</div>");
         body.append("</div>");
         body.append("</div>");
         body.append("</section>");

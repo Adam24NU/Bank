@@ -186,13 +186,13 @@ public class AccountPageServlet extends HttpServlet {
                 .append("</h1>");
         body.append("<p class='page-copy'>")
                 .append(isOwnPage
-                        ? "Review your profile details, keep your avatar current, and manage the information visible across the application."
-                        : "Public-facing profile information is limited by role to avoid exposing sensitive account data.")
+                        ? "Review your profile details, keep your avatar current, and manage the information shared across the template."
+                        : "Shared profile information is intentionally limited to keep account views focused and appropriate.")
                 .append("</p>");
         body.append("</div>");
         body.append("<div class='hero-actions'>");
         body.append("<a class='button button--ghost' href='/transfer'>New transfer</a>");
-        body.append("<a class='button button--secondary' href='/balance'>Browse customers</a>");
+        body.append("<a class='button button--secondary' href='/balance'>Browse directory</a>");
         body.append("</div>");
         body.append("</section>");
 
@@ -267,7 +267,7 @@ public class AccountPageServlet extends HttpServlet {
         } else {
             body.append("<article class='card'>");
             body.append("<h2 class='section-title'>Viewing another account</h2>");
-            body.append("<p class='section-subtitle'>Sensitive fields stay restricted while still allowing internal profile discovery and staff navigation.</p>");
+            body.append("<p class='section-subtitle'>Account views keep key details focused while limiting information that should stay private.</p>");
             body.append("<a class='button button--secondary' href='/account'>Return to your profile</a>");
             body.append("</article>");
         }

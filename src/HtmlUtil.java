@@ -33,14 +33,14 @@ public final class HtmlUtil {
                 + "<div class='brand'>"
                 + "<img src='/logo.png' alt='NorthStar Bank logo' class='brand__logo'>"
                 + "<div>"
-                + "<div class='brand__eyebrow'>Trusted Digital Banking</div>"
+                + "<div class='brand__eyebrow'>Reusable Banking Template</div>"
                 + "<div class='brand__title'>" + escapeHtml(AppConfig.APP_NAME) + "</div>"
                 + "</div>"
                 + "</div>"
                 + "<nav class='site-nav'>"
                 + navLink("/account", "Account", activeRoute)
                 + navLink("/transfer", "Transfers", activeRoute)
-                + navLink("/balance", "Customers", activeRoute)
+                + navLink("/balance", "Directory", activeRoute)
                 + "</nav>"
                 + "<div class='site-header__actions'>"
                 + "<div class='site-header__user'>Signed in as <strong>" + escapeHtml(username) + "</strong></div>"

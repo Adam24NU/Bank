@@ -26,8 +26,8 @@ public class TransferPageServlet extends HttpServlet {
         body.append("<section class='page-hero'>");
         body.append("<div>");
         body.append("<span class='badge'>Payments</span>");
-        body.append("<h1 class='page-title'>Move funds between demo accounts</h1>");
-        body.append("<p class='page-copy'>Transfers now validate destination cards, block self-payments, require CSRF tokens, and use database transactions for consistency.</p>");
+        body.append("<h1 class='page-title'>Move funds between sample accounts</h1>");
+        body.append("<p class='page-copy'>Use the transfer flow to explore a clean payment journey with clear validation and feedback.</p>");
         body.append("</div>");
         body.append("</section>");
 
@@ -67,12 +67,12 @@ public class TransferPageServlet extends HttpServlet {
         body.append("</article>");
 
         body.append("<article class='card'>");
-        body.append("<h2 class='section-title'>Transfer safeguards</h2>");
+        body.append("<h2 class='section-title'>Before you send</h2>");
         body.append("<ul class='simple-list'>");
-        body.append("<li>Only authenticated sessions can submit transfers.</li>");
-        body.append("<li>CSRF validation is required for every transfer request.</li>");
-        body.append("<li>Destination cards must be numeric and must belong to another account.</li>");
-        body.append("<li>Balances are updated inside a single transaction.</li>");
+        body.append("<li>Transfers are available to signed-in users only.</li>");
+        body.append("<li>Enter the recipient card number exactly as shown on the destination account.</li>");
+        body.append("<li>Use whole-number amounts and submit one payment at a time.</li>");
+        body.append("<li>Transfers to the same account are not allowed.</li>");
         body.append("</ul>");
         body.append("</article>");
         body.append("</section>");

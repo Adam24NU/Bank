@@ -1,74 +1,41 @@
 # NorthStar Bank
 
-NorthStar Bank is a refactored Java servlet banking demo running on embedded Jetty with a local SQLite database. The project started from a coursework-style repository with vulnerable/demo-only features and has been cleaned up into a smaller, safer, easier-to-maintain application focused on the core banking flows that remain relevant.
+NorthStar Bank is a modern banking web app template and demo built with Java servlets. It provides a polished account dashboard, transfer flow, customer directory, and profile management experience that teams can clone and adapt for prototypes, internal demos, or learning projects.
 
-## Final Feature Set
+The repository is intentionally small and reusable. It keeps the current hardened implementation in place, but presents the project as a clean starter rather than a personal one-off codebase. It is meant for local development and evaluation, not production banking infrastructure.
 
-- Secure login at `/welcome`
-- Authenticated account dashboard at `/account`
-- Profile editing with output-safe rendering
-- Avatar upload with image validation and PNG re-encoding
-- Balance transfer flow at `/transfer`
-- Customer directory at `/balance`
-- Logout flow at `/logout`
+## Feature Overview
 
-Removed from the final project:
-
-- Coursework-only XML statement feature
-- Standalone path traversal demo
-- Demo attack files and sample exploit content
-- Prebuilt/generated artifacts and duplicate libraries
-
-## Security Improvements
-
-The current application includes these practical hardening changes:
-
-- PBKDF2 password hashing for seeded users
-- Prepared statements for database access
-- Transactional transfer updates
-- Session rotation on login
-- HttpOnly cookie usage and cookie-only session tracking
-- CSRF protection on all state-changing forms
-- Input validation for usernames, card numbers, transfer amounts, and profiles
-- Output encoding for user-controlled text
-- Avatar upload size limits and safe server-side image processing
-- Security response headers on application pages
-- Tighter authorization around profile views, balances, and card visibility
-- Static directory listing disabled
-
-## Tech Stack
-
-- Java 11
-- Java Servlets
-- Embedded Jetty 9
-- SQLite
-- Apache Ant
-- Apache Commons FileUpload / Commons IO
-- Centralized CSS in `src/WebContext/app.css`
+- Sign-in flow at `/welcome`
+- Account dashboard at `/account`
+- Profile editing and avatar upload
+- Fund transfer flow at `/transfer`
+- Internal customer directory at `/balance`
+- Cohesive shared UI styling in `src/WebContext/app.css`
+- Sample seeded accounts for local exploration
 
 ## Project Structure
 
-- `src/TargetServer.java`: Jetty startup and route registration
-- `src/Database.java`: database access layer
-- `src/DatabaseBootstrap.java`: schema creation and seeded data
-- `src/WebSecurity.java`: session, CSRF, flash messages, and security headers
-- `src/HtmlUtil.java`: HTML shell and encoding helpers
+- `src/TargetServer.java`: local server bootstrap and route registration
+- `src/Database.java`: data-access layer
+- `src/DatabaseBootstrap.java`: schema creation and sample data seeding
+- `src/WebSecurity.java`: session, CSRF, flash message, and response-header helpers
+- `src/HtmlUtil.java`: shared HTML shell and escaping helpers
 - `src/ValidationUtil.java`: request validation helpers
-- `src/ViewPageServlet.java`: login page
-- `src/AccountPageServlet.java`: account dashboard, profile updates, avatar upload
+- `src/ViewPageServlet.java`: sign-in page
+- `src/AccountPageServlet.java`: dashboard, profile updates, and avatar uploads
 - `src/TransferPageServlet.java`: transfer flow
 - `src/CustomersListPageServlet.java`: customer directory
-- `src/AvatarServlet.java`: authenticated avatar image endpoint
+- `src/AvatarServlet.java`: authenticated avatar endpoint
 - `src/LogoutServlet.java`: logout handler
-- `src/WebContext/`: shared frontend assets
-- `build.xml`: build and bootstrap workflow
+- `build.xml`: compile and bootstrap workflow
 
 ## Prerequisites
 
 - Java 11 or newer
 - Apache Ant
 
-All required runtime JARs are bundled in `src/lib`.
+Runtime JARs are already bundled in `src/lib`.
 
 ## Build And Run
 
@@ -80,7 +47,7 @@ cd built/classes
 ./run.sh
 ```
 
-Then open:
+Open:
 
 ```text
 http://localhost:15000/welcome
@@ -92,9 +59,9 @@ To stop the server, type:
 quit
 ```
 
-## Demo Login Details
+## Sample Accounts
 
-The build seeds these local demo accounts:
+The local build seeds these placeholder accounts for template review:
 
 | Username | Password | Role |
 | --- | --- | --- |
@@ -106,28 +73,11 @@ The build seeds these local demo accounts:
 | `user5` | `user5Password` | `normal` |
 | `user6` | `user6Password` | `normal` |
 
-These passwords are hashed when the SQLite database is generated.
+Rebuilding the project resets the local database to this default sample state.
 
-## Build Notes
-
-`ant compile` now:
-
-- recreates `built/classes`
-- copies only the current web assets
-- compiles the application for Java 11
-- runs `DatabaseBootstrap` to create `built/classes/users.db`
-
-The build no longer depends on `sqlite3`.
-
-## Uploads, Seeded Data, And Limitations
-
-- Avatar uploads are stored under the runtime `uploads/` directory and are not intended as permanent content
-- Rebuilding resets the seeded database back to the default demo state
-- The app is designed for local/demo use and does not include HTTPS or production deployment wiring
-- The project still uses seeded credentials because it is a demo banking app, not a real multi-user registration system
-
-## Repository Notes
+## Notes
 
 - Generated output is written under `built/` and ignored by git
-- Runtime uploads and common editor/OS noise are ignored by git
-- The old coursework/demo functionality has been removed rather than left dormant
+- Runtime uploads are written to `uploads/` in the active run directory
+- The application is intended for local demos, learning, and template adaptation
+- Production deployment concerns such as HTTPS termination, secrets management, persistent object storage, monitoring, and operational scaling are outside the scope of this repository

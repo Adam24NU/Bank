@@ -29,9 +29,9 @@ public class CustomersListPageServlet extends HttpServlet {
         body.append("<main class='page-shell'>");
         body.append("<section class='page-hero'>");
         body.append("<div>");
-        body.append("<span class='badge'>Customer Directory</span>");
-        body.append("<h1 class='page-title'>Internal customer overview</h1>");
-        body.append("<p class='page-copy'>The directory keeps normal browsing useful without exposing sensitive account information to standard users.</p>");
+        body.append("<span class='badge'>Directory</span>");
+        body.append("<h1 class='page-title'>Customer account directory</h1>");
+        body.append("<p class='page-copy'>Browse customer records in a neutral internal directory view designed for template use.</p>");
         body.append("</div>");
         body.append("</section>");
 
@@ -39,7 +39,7 @@ public class CustomersListPageServlet extends HttpServlet {
         body.append("<div class='section-header'>");
         body.append("<div>");
         body.append("<h2 class='section-title'>Customer accounts</h2>");
-        body.append("<p class='section-subtitle'>Sorted by balance for quick operational review.</p>");
+        body.append("<p class='section-subtitle'>Sorted by balance for a consistent sample overview.</p>");
         body.append("</div>");
         body.append("</div>");
         body.append("<div class='table-wrap'>");
@@ -76,7 +76,7 @@ public class CustomersListPageServlet extends HttpServlet {
         WebSecurity.applySecurityHeaders(res);
         res.setContentType("text/html; charset=utf-8");
         res.setStatus(HttpServletResponse.SC_OK);
-        res.getWriter().print(HtmlUtil.page("Customers | " + AppConfig.APP_NAME, "/balance", username, csrfToken,
+        res.getWriter().print(HtmlUtil.page("Directory | " + AppConfig.APP_NAME, "/balance", username, csrfToken,
                 body.toString()));
     }
 }
