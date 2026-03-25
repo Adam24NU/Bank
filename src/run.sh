@@ -1,3 +1,2 @@
-#!/bin/bash
-java -cp "../../src/lib/*:." TargetServer
-
+#!/usr/bin/env sh
+exec java -cp "../../src/lib/*:." TargetServer

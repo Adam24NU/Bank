@@ -6,29 +6,39 @@
     </path>
 
     <target name="compile">
+        <exec executable="rm" osfamily="unix" failonerror="true">
+            <arg value="-rf"/>
+            <arg value="built/classes"/>
+        </exec>
         <mkdir dir="built/classes"/>
+
         <copy file="src/run.sh" todir="built/classes/"/>
         <chmod file="built/classes/run.sh" perm="ugo+rx"/>
+
         <copy todir="built/classes/WebContext">
             <fileset dir="src/WebContext">
                 <include name="**"/>
+                <exclude name="**/._*"/>
             </fileset>
         </copy>
-        <javac srcdir="src" includeantruntime="false" destdir="built/classes/" debug="true">
+
+        <javac srcdir="src" includeantruntime="false" destdir="built/classes/" debug="true" release="11">
             <classpath refid="classpath"/>
         </javac>
 
-        <!-- Target to create the database -->
         <echo message="Creating sample database..."/>
-        <delete file="users.db"/>
-        <exec executable="sqlite3">
-            <arg value="./built/classes/users.db"/>
-            <arg value=".read src/create_db.sql"/>
-        </exec>
-
+        <java classname="DatabaseBootstrap" fork="true" failonerror="true">
+            <classpath>
+                <path refid="classpath"/>
+                <pathelement location="built/classes"/>
+            </classpath>
+        </java>
     </target>
 
     <target name="clean">
-        <delete dir="built"/>
+        <exec executable="rm" osfamily="unix" failonerror="false">
+            <arg value="-rf"/>
+            <arg value="built"/>
+        </exec>
     </target>
 </project>

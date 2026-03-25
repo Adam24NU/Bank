@@ -1,193 +1,133 @@
-SET10113 Secure Software Development — CW2 README for Codex
+# NorthStar Bank
 
-Project context
+NorthStar Bank is a refactored Java servlet banking demo running on embedded Jetty with a local SQLite database. The project started from a coursework-style repository with vulnerable/demo-only features and has been cleaned up into a smaller, safer, easier-to-maintain application focused on the core banking flows that remain relevant.
 
-This coursework is for SET10113 Secure Software Development.
+## Final Feature Set
 
-The main target application is BankWebsite / Bank_Attack, an intentionally vulnerable Java web application simulating a banking system.
+- Secure login at `/welcome`
+- Authenticated account dashboard at `/account`
+- Profile editing with output-safe rendering
+- Avatar upload with image validation and PNG re-encoding
+- Balance transfer flow at `/transfer`
+- Customer directory at `/balance`
+- Logout flow at `/logout`
 
-Environment:
-	•	Java + Servlets (Jetty)
-	•	URL: http://localhost:15000/welcome
-	•	Roles: admin and normal users
+Removed from the final project:
 
-⸻
+- Coursework-only XML statement feature
+- Standalone path traversal demo
+- Demo attack files and sample exploit content
+- Prebuilt/generated artifacts and duplicate libraries
 
-Coursework 1 (COMPLETED)
+## Security Improvements
 
-Vulnerabilities identified and exploited
-	1.	SQL Injection (CWE-89)
-	2.	Stored XSS (CWE-79)
-	3.	Improper Authorization / Information Exposure (CWE-285 / CWE-200)
-	4.	Unrestricted File Upload (CWE-434)
-	5.	CSRF (CWE-352)
+The current application includes these practical hardening changes:
 
-Summary of exploitation
-	•	SQL Injection: login bypass using ’ OR 1=1 –
-	•	Stored XSS: script execution in profile description
-	•	Info Exposure: users can view other users’ card numbers
-	•	File Upload: unsafe SVG accepted and rendered
-	•	CSRF: transfer triggered via external HTML page
+- PBKDF2 password hashing for seeded users
+- Prepared statements for database access
+- Transactional transfer updates
+- Session rotation on login
+- HttpOnly cookie usage and cookie-only session tracking
+- CSRF protection on all state-changing forms
+- Input validation for usernames, card numbers, transfer amounts, and profiles
+- Output encoding for user-controlled text
+- Avatar upload size limits and safe server-side image processing
+- Security response headers on application pages
+- Tighter authorization around profile views, balances, and card visibility
+- Static directory listing disabled
 
-⸻
+## Tech Stack
 
-Additional Vulnerabilities (CW2)
+- Java 11
+- Java Servlets
+- Embedded Jetty 9
+- SQLite
+- Apache Ant
+- Apache Commons FileUpload / Commons IO
+- Centralized CSS in `src/WebContext/app.css`
 
-Selected from coursework list:
-	1.	Path Traversal
-	2.	XML Injection
+## Project Structure
 
-IMPORTANT IMPLEMENTATION DECISION
+- `src/TargetServer.java`: Jetty startup and route registration
+- `src/Database.java`: database access layer
+- `src/DatabaseBootstrap.java`: schema creation and seeded data
+- `src/WebSecurity.java`: session, CSRF, flash messages, and security headers
+- `src/HtmlUtil.java`: HTML shell and encoding helpers
+- `src/ValidationUtil.java`: request validation helpers
+- `src/ViewPageServlet.java`: login page
+- `src/AccountPageServlet.java`: account dashboard, profile updates, avatar upload
+- `src/TransferPageServlet.java`: transfer flow
+- `src/CustomersListPageServlet.java`: customer directory
+- `src/AvatarServlet.java`: authenticated avatar image endpoint
+- `src/LogoutServlet.java`: logout handler
+- `src/WebContext/`: shared frontend assets
+- `build.xml`: build and bootstrap workflow
 
-These MUST follow CW1 plan:
-	•	XML Injection → implemented as a webpage added to BankWebsite
-	•	Path Traversal → implemented as a separate standalone application
+## Prerequisites
 
-This means:
-	•	The vulnerabilities are NOT combined into one feature
-	•	They will be demonstrated separately
+- Java 11 or newer
+- Apache Ant
 
-⸻
+All required runtime JARs are bundled in `src/lib`.
 
-Coursework 2 Requirements
+## Build And Run
 
-You must:
-	1.	Fix all 5 CW1 vulnerabilities in BankWebsite
-	2.	Implement 2 new vulnerabilities (Path Traversal + XML Injection)
-	3.	Mitigate both new vulnerabilities
-	4.	Demonstrate everything clearly
+From the repository root:
 
-⸻
+```bash
+ant compile
+cd built/classes
+./run.sh
+```
 
-CRITICAL REQUIREMENTS (MUST FOLLOW)
+Then open:
 
-For EACH additional vulnerability:
-	1.	Show normal behaviour
-	2.	Show successful attack
-	3.	Apply mitigation
-	4.	Show attack fails after fix
-	5.	Show normal behaviour still works
+```text
+http://localhost:15000/welcome
+```
 
-A VIDEO is mandatory:
-	•	3 minutes per vulnerability
-	•	total ~6 minutes
+To stop the server, type:
 
-If video is missing → 0 marks for that section
+```text
+quit
+```
 
-⸻
+## Demo Login Details
 
-XML Injection (BankWebsite Feature)
+The build seeds these local demo accounts:
 
-Feature: XML Statement Viewer
+| Username | Password | Role |
+| --- | --- | --- |
+| `admin` | `adminPassword` | `admin` |
+| `user1` | `user1Password` | `normal` |
+| `user2` | `user2Password` | `normal` |
+| `user3` | `user3Password` | `normal` |
+| `user4` | `user4Password` | `normal` |
+| `user5` | `user5Password` | `normal` |
+| `user6` | `user6Password` | `normal` |
 
-Add a new webpage inside BankWebsite:
+These passwords are hashed when the SQLite database is generated.
 
-Route example:
-	•	/xml-statement
+## Build Notes
 
-Normal behaviour
-	•	User submits valid XML
-	•	System parses expected fields
-	•	Data displayed correctly
+`ant compile` now:
 
-Vulnerable behaviour
-	•	XML is processed without validation
-	•	Malicious XML changes output or structure
+- recreates `built/classes`
+- copies only the current web assets
+- compiles the application for Java 11
+- runs `DatabaseBootstrap` to create `built/classes/users.db`
 
-Example attack
-	•	Inject unexpected nodes
-	•	Modify structure
+The build no longer depends on `sqlite3`.
 
-Mitigation
-	•	Validate XML structure (schema or allowlist)
-	•	Reject unexpected elements
-	•	Sanitize parsed data
+## Uploads, Seeded Data, And Limitations
 
-⸻
+- Avatar uploads are stored under the runtime `uploads/` directory and are not intended as permanent content
+- Rebuilding resets the seeded database back to the default demo state
+- The app is designed for local/demo use and does not include HTTPS or production deployment wiring
+- The project still uses seeded credentials because it is a demo banking app, not a real multi-user registration system
 
-Path Traversal (Standalone Application)
+## Repository Notes
 
-Feature: File Reader Application
-
-A small Java application that:
-	•	reads a file based on user input
-	•	displays file contents
-
-Normal behaviour
-	•	User requests safe file
-	•	File is read from allowed directory
-
-Vulnerable behaviour
-	•	User input is used directly as file path
-
-Example attack:
-../../../../etc/passwd
-
-Mitigation
-	•	Canonicalize path
-	•	Restrict to base directory
-	•	Allowlist filenames
-
-⸻
-
-Tasks for Codex
-
-Part A — Additional vulnerabilities
-	1.	XML Injection (BankWebsite)
-	•	add servlet
-	•	implement vulnerable parsing
-	•	implement secure parsing
-	2.	Path Traversal (Standalone app)
-	•	simple Java file reader
-	•	vulnerable version
-	•	secure version
-
-⸻
-
-Part B — Fix CW1 vulnerabilities
-
-Fix:
-	1.	SQL Injection → prepared statements
-	2.	Stored XSS → encoding/sanitization
-	3.	Authorization → role checks
-	4.	File Upload → type validation
-	5.	CSRF → tokens
-
-Each fix must:
-	•	stop the attack
-	•	keep normal behaviour working
-
-⸻
-
-Constraints for Codex
-	•	Do NOT rewrite the whole project
-	•	Make minimal changes
-	•	Keep code simple for demo
-	•	Separate vulnerable vs secure clearly
-	•	Ensure everything is demonstrable
-
-⸻
-
-NEXT STEP FOR CODEX
-	1.	Analyse project structure
-	2.	Propose implementation for:
-	•	XML Injection servlet
-	•	Path Traversal standalone app
-	3.	List files to create/modify
-	4.	Provide step-by-step plan
-
-DO NOT generate code yet
-
-⸻
-
-FINAL SUMMARY
-
-CW1 DONE:
-	•	5 vulnerabilities exploited
-
-CW2 GOAL:
-	•	Fix 5 vulnerabilities
-	•	Implement XML Injection (webpage)
-	•	Implement Path Traversal (standalone app)
-	•	Mitigate both
-	•	Record video
+- Generated output is written under `built/` and ignored by git
+- Runtime uploads and common editor/OS noise are ignored by git
+- The old coursework/demo functionality has been removed rather than left dormant

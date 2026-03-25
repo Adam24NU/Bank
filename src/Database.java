@@ -3,314 +3,237 @@ import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
 import java.util.ArrayList;
+import java.util.List;
 
-public class Database {
+/**
+ * Data-access layer for the banking demo.
+ *
+ * The application is intentionally small, so the DAO stays lightweight but all
+ * SQL is centralized here to keep servlet code focused on HTTP behaviour.
+ */
+public final class Database {
+    private static final String DB_URL = "jdbc:sqlite:users.db";
 
-    // The number of users on the ranking
-    static final int RANK_NUM = 50;
-
-    /*
-     * Create a connection to the SQLite database
-     */
-    private static Connection getConnection() throws SQLException {
-        String url = "jdbc:sqlite:users.db";
-        return DriverManager.getConnection(url);
+    private Database() {
     }
 
-    /*
-     * Authenticate the user with username and password
-     */
     public static boolean authenticateUser(String username, String password) {
-        String query = "SELECT * FROM LoginInformation WHERE username = '" + username + "' AND password = '" + password + "'";
-        try (Connection conn = getConnection();
-             PreparedStatement pstmt = conn.prepareStatement(query)) {
-             ResultSet rs = pstmt.executeQuery();
+        String sql = "SELECT passwordHash FROM LoginInformation WHERE username = ?";
+        try (Connection connection = getConnection();
+                PreparedStatement statement = connection.prepareStatement(sql)) {
+            statement.setString(1, username);
 
-            return rs.next();
+            try (ResultSet resultSet = statement.executeQuery()) {
+                if (!resultSet.next()) {
+                    return false;
+                }
+                return PasswordUtil.verifyPassword(password, resultSet.getString("passwordHash"));
+            }
         } catch (SQLException e) {
             e.printStackTrace();
             return false;
         }
     }
 
-    /*
-     * Get the balance of the user
-     */
-    public static int getBalance(String username) {
-        String query = "SELECT balance FROM LoginInformation WHERE username = ?";
-        try (Connection conn = getConnection();
-             PreparedStatement pstmt = conn.prepareStatement(query)) {
+    public static UserRecord getUserRecord(String username) {
+        String sql = "SELECT username, cardId, type, profile, balance, profilePicture "
+                + "FROM LoginInformation WHERE username = ?";
+        try (Connection connection = getConnection();
+                PreparedStatement statement = connection.prepareStatement(sql)) {
+            statement.setString(1, username);
 
-            pstmt.setString(1, username);
-            ResultSet rs = pstmt.executeQuery();
+            try (ResultSet resultSet = statement.executeQuery()) {
+                if (!resultSet.next()) {
+                    return null;
+                }
+                return mapUserRecord(resultSet);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
 
-            if (rs.next()) {
-                return rs.getInt("balance");
+    public static List<CustomerSummary> getCustomerSummaries() {
+        List<CustomerSummary> customers = new ArrayList<>();
+        String sql = "SELECT username, cardId, type, balance FROM LoginInformation ORDER BY balance DESC, username ASC";
+        try (Connection connection = getConnection();
+                PreparedStatement statement = connection.prepareStatement(sql);
+                ResultSet resultSet = statement.executeQuery()) {
+            while (resultSet.next()) {
+                customers.add(new CustomerSummary(
+                        resultSet.getString("username"),
+                        resultSet.getString("cardId"),
+                        resultSet.getString("type"),
+                        resultSet.getLong("balance")));
             }
         } catch (SQLException e) {
             e.printStackTrace();
         }
-        return -1;
+        return customers;
     }
 
-    /*
-     * Set the balance for a user
-     */
-    public static boolean setBalance(String username, int balance) {
-        String query = "UPDATE LoginInformation SET balance = balance + ? WHERE username = ?";
-        try (Connection conn = getConnection();
-             PreparedStatement pstmt = conn.prepareStatement(query)) {
-
-            pstmt.setInt(1, balance);
-            pstmt.setString(2, username);
-            int rowsUpdated = pstmt.executeUpdate();
-
-            return rowsUpdated > 0;
+    public static boolean updateProfile(String username, String profile) {
+        String sql = "UPDATE LoginInformation SET profile = ? WHERE username = ?";
+        try (Connection connection = getConnection();
+                PreparedStatement statement = connection.prepareStatement(sql)) {
+            statement.setString(1, profile);
+            statement.setString(2, username);
+            return statement.executeUpdate() == 1;
         } catch (SQLException e) {
             e.printStackTrace();
             return false;
         }
     }
 
-    /*
-     * Transfer balance from one user to another
-     */
-    public static int transferBalance(String from, String to, int fromBalance, int addBalance) {
-        int deductBalance = -addBalance;
+    public static boolean updateProfilePicture(String username, String fileName) {
+        String sql = "UPDATE LoginInformation SET profilePicture = ? WHERE username = ?";
+        try (Connection connection = getConnection();
+                PreparedStatement statement = connection.prepareStatement(sql)) {
+            statement.setString(1, fileName);
+            statement.setString(2, username);
+            return statement.executeUpdate() == 1;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
 
-        try (Connection conn = getConnection()) {
-            conn.setAutoCommit(false);
+    public static TransferResult transferBalance(String fromUsername, String destinationCardId, long amount) {
+        String sourceSql = "SELECT username, cardId, balance FROM LoginInformation WHERE username = ?";
+        String destinationSql = "SELECT username, balance FROM LoginInformation WHERE cardId = ?";
+        String updateSql = "UPDATE LoginInformation SET balance = ? WHERE username = ?";
 
-            String updateFrom = "UPDATE LoginInformation SET balance = balance + ? WHERE cardId = ?";
-            String updateTo = "UPDATE LoginInformation SET balance = balance + ? WHERE cardId = ?";
+        try (Connection connection = getConnection()) {
+            connection.setAutoCommit(false);
 
-            try (PreparedStatement pstmtFrom = conn.prepareStatement(updateFrom);
-                 PreparedStatement pstmtTo = conn.prepareStatement(updateTo)) {
+            try (PreparedStatement sourceStatement = connection.prepareStatement(sourceSql);
+                    PreparedStatement destinationStatement = connection.prepareStatement(destinationSql);
+                    PreparedStatement updateStatement = connection.prepareStatement(updateSql)) {
+                sourceStatement.setString(1, fromUsername);
+                destinationStatement.setString(1, destinationCardId);
 
-                pstmtFrom.setInt(1, deductBalance);
-                pstmtFrom.setString(2, from);
-                pstmtFrom.executeUpdate();
+                try (ResultSet source = sourceStatement.executeQuery();
+                        ResultSet destination = destinationStatement.executeQuery()) {
+                    if (!source.next()) {
+                        connection.rollback();
+                        return TransferResult.failure("Source account was not found.");
+                    }
+                    if (!destination.next()) {
+                        connection.rollback();
+                        return TransferResult.failure("Destination account was not found.");
+                    }
 
-                pstmtTo.setInt(1, addBalance);
-                pstmtTo.setString(2, to);
-                pstmtTo.executeUpdate();
+                    String sourceCardId = source.getString("cardId");
+                    String destinationUsername = destination.getString("username");
+                    long sourceBalance = source.getLong("balance");
+                    long destinationBalance = destination.getLong("balance");
 
-                conn.commit();
-                return fromBalance - addBalance;
+                    if (sourceCardId.equals(destinationCardId)) {
+                        connection.rollback();
+                        return TransferResult.failure("You cannot transfer funds to the same account.");
+                    }
+                    if (amount <= 0L) {
+                        connection.rollback();
+                        return TransferResult.failure("Transfer amount must be greater than zero.");
+                    }
+                    if (sourceBalance < amount) {
+                        connection.rollback();
+                        return TransferResult.failure("Insufficient funds for this transfer.");
+                    }
+
+                    updateStatement.setLong(1, sourceBalance - amount);
+                    updateStatement.setString(2, fromUsername);
+                    updateStatement.executeUpdate();
+
+                    updateStatement.setLong(1, destinationBalance + amount);
+                    updateStatement.setString(2, destinationUsername);
+                    updateStatement.executeUpdate();
+
+                    connection.commit();
+                    return TransferResult.success(sourceBalance - amount);
+                }
             } catch (SQLException e) {
-                conn.rollback();
+                connection.rollback();
                 e.printStackTrace();
-                return -1;
+                return TransferResult.failure("Unable to complete the transfer right now.");
+            } finally {
+                connection.setAutoCommit(true);
             }
         } catch (SQLException e) {
             e.printStackTrace();
-            return -1;
+            return TransferResult.failure("Unable to connect to the database.");
         }
     }
 
-    /*
-     * Get customer lists
-     */
-    public static ArrayList<String[]> getCustomersList() {
-        String query = "SELECT username, balance FROM LoginInformation DESC LIMIT ?";
-        ArrayList<String[]> customersList = new ArrayList<>();
-
-        try (Connection conn = getConnection();
-             PreparedStatement pstmt = conn.prepareStatement(query)) {
-
-            pstmt.setInt(1, RANK_NUM);
-            ResultSet rs = pstmt.executeQuery();
-
-            while (rs.next()) {
-                String[] user = new String[2];
-                user[0] = rs.getString("username");
-                user[1] = Integer.toString(rs.getInt("balance"));
-                customersList.add(user);
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-        return customersList;
+    private static UserRecord mapUserRecord(ResultSet resultSet) throws SQLException {
+        return new UserRecord(
+                resultSet.getString("username"),
+                resultSet.getString("cardId"),
+                resultSet.getString("type"),
+                resultSet.getString("profile"),
+                resultSet.getLong("balance"),
+                resultSet.getString("profilePicture"));
     }
 
-    /*
-     * Get the profile content of a user
-     */
-    public static String getProfile(String username) {
-        String query = "SELECT profile FROM LoginInformation WHERE username = ?";
-        try (Connection conn = getConnection();
-             PreparedStatement pstmt = conn.prepareStatement(query)) {
-
-            pstmt.setString(1, username);
-            ResultSet rs = pstmt.executeQuery();
-
-            if (rs.next()) {
-                return rs.getString("profile");
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-        return "";
+    private static Connection getConnection() throws SQLException {
+        return DriverManager.getConnection(DB_URL);
     }
 
-    /*
-     * get username by card
-     */
-    public static String getUsernameByCardId(String cardId) {
-        String query = "SELECT username FROM LoginInformation WHERE cardId = ?";
-        try (Connection conn = getConnection();
-             PreparedStatement pstmt = conn.prepareStatement(query)) {
+    public static final class UserRecord {
+        public final String username;
+        public final String cardId;
+        public final String role;
+        public final String profile;
+        public final long balance;
+        public final String profilePicture;
 
-            pstmt.setString(1, cardId);
-            ResultSet rs = pstmt.executeQuery();
-
-            if (rs.next()) {
-                return rs.getString("username");
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
+        UserRecord(String username, String cardId, String role, String profile, long balance, String profilePicture) {
+            this.username = username;
+            this.cardId = cardId;
+            this.role = role;
+            this.profile = profile == null ? "" : profile;
+            this.balance = balance;
+            this.profilePicture = profilePicture == null ? "" : profilePicture;
         }
-        return "";
-    }
 
-    /*
-     * check is card exist
-     */
-    public static boolean isCardExist(String cardId) {
-        String query = "SELECT username FROM LoginInformation WHERE cardId = ?";
-        try (Connection conn = getConnection();
-             PreparedStatement pstmt = conn.prepareStatement(query)) {
-
-            pstmt.setString(1, cardId);
-            ResultSet rs = pstmt.executeQuery();
-
-            if (rs.next()) {
-                return true;
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-        return false;
-    }
-
-    /*
-     * Get the cardId of a user
-     */
-    public static String getCardId(String username) {
-        String query = "SELECT cardId FROM LoginInformation WHERE username = ?";
-        try (Connection conn = getConnection();
-             PreparedStatement pstmt = conn.prepareStatement(query)) {
-
-            pstmt.setString(1, username);
-            ResultSet rs = pstmt.executeQuery();
-
-            if (rs.next()) {
-                return rs.getString("cardId");
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-        return "";
-    }
-
-    /*
-     * Get the type of a user
-     */
-    public static String getType(String username) {
-        String query = "SELECT type FROM LoginInformation WHERE username = ?";
-        try (Connection conn = getConnection();
-             PreparedStatement pstmt = conn.prepareStatement(query)) {
-
-            pstmt.setString(1, username);
-            ResultSet rs = pstmt.executeQuery();
-
-            if (rs.next()) {
-                return rs.getString("type");
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-        return "";
-    }
-
-    /*
-     * Get the profile picture of a user
-     */
-    public static String getProfilePicture(String username) {
-        String query = "SELECT profilePicture FROM LoginInformation WHERE username = ?";
-        try (Connection conn = getConnection();
-             PreparedStatement pstmt = conn.prepareStatement(query)) {
-
-            pstmt.setString(1, username);
-            ResultSet rs = pstmt.executeQuery();
-
-            if (rs.next()) {
-                return rs.getString("profilePicture");
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-        return "";
-    }
-
-    /*
-     * Add or update profile information
-     */
-    public static boolean addAccountInfo(String username, String profile) {
-        String query = "UPDATE LoginInformation SET profile = ? WHERE username = ?";
-        try (Connection conn = getConnection();
-             PreparedStatement pstmt = conn.prepareStatement(query)) {
-
-            pstmt.setString(1, profile != null ? profile : "");
-            pstmt.setString(2, username);
-
-            int rowsUpdated = pstmt.executeUpdate();
-            return rowsUpdated > 0;
-        } catch (SQLException e) {
-            e.printStackTrace();
-            return false;
+        public boolean isAdmin() {
+            return "admin".equalsIgnoreCase(role);
         }
     }
 
-    /*
-     * Add or update type information
-     */
-    public static boolean setUserType(String username, String type) {
-        String query = "UPDATE LoginInformation SET type = '" + type + "' WHERE username = '" + username + "'";
-        try (Connection conn = getConnection();
-             PreparedStatement pstmt = conn.prepareStatement(query)) {
+    public static final class CustomerSummary {
+        public final String username;
+        public final String cardId;
+        public final String role;
+        public final long balance;
 
-            int rowsUpdated = pstmt.executeUpdate();
-            return rowsUpdated > 0;
-        } catch (SQLException e) {
-            e.printStackTrace();
-            return false;
+        CustomerSummary(String username, String cardId, String role, long balance) {
+            this.username = username;
+            this.cardId = cardId;
+            this.role = role;
+            this.balance = balance;
         }
     }
 
-    /*
-     * Update profile picture
-     */
-    public static boolean updateProfilePicture(String username, String imageFilePath) {
-        if (imageFilePath.endsWith(".exe")) {
-            System.out.println("File type .exe is not allowed.");
-            return false;
+    public static final class TransferResult {
+        public final boolean success;
+        public final String message;
+        public final long updatedSourceBalance;
+
+        private TransferResult(boolean success, String message, long updatedSourceBalance) {
+            this.success = success;
+            this.message = message;
+            this.updatedSourceBalance = updatedSourceBalance;
         }
 
-        String query = "UPDATE LoginInformation SET profilePicture = ? WHERE username = ?";
-        try (Connection conn = getConnection();
-             PreparedStatement pstmt = conn.prepareStatement(query)) {
+        public static TransferResult success(long updatedSourceBalance) {
+            return new TransferResult(true, "Transfer completed successfully.", updatedSourceBalance);
+        }
 
-            pstmt.setString(1, imageFilePath);
-            pstmt.setString(2, username);
-            int rowsUpdated = pstmt.executeUpdate();
-
-            return rowsUpdated > 0;
-        } catch (SQLException e) {
-            e.printStackTrace();
-            return false;
+        public static TransferResult failure(String message) {
+            return new TransferResult(false, message, -1L);
         }
     }
 }

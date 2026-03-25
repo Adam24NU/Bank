@@ -1,116 +1,111 @@
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.io.FileInputStream;
-import java.io.BufferedReader;
-import java.nio.ByteBuffer;
-import java.nio.CharBuffer;
-import java.nio.channels.FileChannel;
-import java.nio.charset.Charset;
 
+import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
-import javax.servlet.ServletException;
 
 /**
- * Display either a welcome page or an account page.
- * 
- * @author Joseph Eichenhofer
+ * Login entry point for the application.
  */
 public class ViewPageServlet extends HttpServlet {
+    @Override
+    protected void doGet(HttpServletRequest req, HttpServletResponse res) throws IOException {
+        HttpSession session = req.getSession(false);
+        if (session != null && WebSecurity.currentUsername(session) != null) {
+            res.sendRedirect("/account");
+            return;
+        }
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * javax.servlet.http.HttpServlet#doGet(javax.servlet.http.HttpServletRequest,
-	 * javax.servlet.http.HttpServletResponse)
-	 * 
-	 * Serve one of two "pages" showing either a login form (if no session is
-	 * registered with the request) or the account page  that are associated
-	 * with the session (if one exists).
-	 */
-	@Override
-	protected void doGet(HttpServletRequest req, HttpServletResponse res) throws IOException, ServletException {
-		PrintWriter content = res.getWriter();
+        String error = req.getParameter("error");
+        writeHtml(res, loginPage(error));
+    }
 
-		HttpSession session = req.getSession(false);
-                String loginM = req.getParameter("loginMessage");
+    @Override
+    protected void doPost(HttpServletRequest req, HttpServletResponse res) throws IOException, ServletException {
+        String username = safe(req.getParameter("username"));
+        String password = req.getParameter("password");
 
-		// set encoding/type
-		res.setContentType("text/html; charset=utf-8");
-		// set good status code
-		res.setStatus(HttpServletResponse.SC_OK);
+        if (!ValidationUtil.isSafeUsername(username) || password == null || password.isEmpty()) {
+            res.sendRedirect("/welcome?error=Please+enter+a+valid+username+and+password.");
+            return;
+        }
 
-		if (session == null) {
-				
-			// no session, show "login" form
-			content.println("<!DOCTYPE html>");
-                        content.println("<html>");
-                        content.println("<head>");
-                        content.println("<title>Welcome Page</title>");
-                        content.println("<link rel=\"stylesheet\" type=\"text/css\" href=\"WelcomePage.css\">");
-                        content.println("<link rel=\"stylesheet\" type=\"text/css\" href=\"Navbar.css\">");
-                        content.println("</head>");
+        if (!Database.authenticateUser(username, password)) {
+            res.sendRedirect("/welcome?error=Incorrect+username+or+password.");
+            return;
+        }
 
-                        content.println("<body>");
+        WebSecurity.startAuthenticatedSession(req, username);
+        res.sendRedirect("/account");
+    }
 
-                        content.println("<img src=\"./logo.png\" width=\"290\" height=\"90\" class=\"d-inline-block align-top\" alt=\"\">");
-			content.println("<div id=\"container\">");	
-			content.println("<h1>");
-			content.println("Login In The Big Bank");
-			content.println("</h1>");
+    private void writeHtml(HttpServletResponse res, String html) throws IOException {
+        WebSecurity.applySecurityHeaders(res);
+        res.setContentType("text/html; charset=utf-8");
+        res.setStatus(HttpServletResponse.SC_OK);
+        PrintWriter writer = res.getWriter();
+        writer.print(html);
+    }
 
-			// write out form for setting username
-			content.println("<form action=\"welcome\" method=\"POST\"");
-			content.println("accept-charset=\"utf-8\">");
-			content.println("USERNAME: <input type=\"text\" name=\"username\">");
-			content.println("PASSWORD: <input type=\"password\" name=\"password\">");
-                        if(loginM != null && loginM != ""){
-                            content.println("<div>Wrong Username or Password</div>");
-                            req.setAttribute("loginMessage", "");
-                        }
-			content.println("<input type=\"submit\" value=\"Submit\">");
-			content.println("</form>");
-			
-			content.println("</div>");
-			content.println("</body>");
-			content.println("</html>");
-		} else {
-			res.sendRedirect("/account");
-		}
-	}
+    private String loginPage(String error) {
+        StringBuilder body = new StringBuilder();
+        body.append("<main class='auth-shell'>");
+        body.append("<section class='auth-hero'>");
+        body.append("<div class='auth-hero__content'>");
+        body.append("<span class='badge'>Secure Demo Environment</span>");
+        body.append("<h1 class='auth-hero__title'>Modernized banking operations for a safer servlet application.</h1>");
+        body.append("<p class='auth-hero__copy'>")
+                .append("This refactored build keeps the original coursework flows but removes the unsafe demo shortcuts, ")
+                .append("tightens validation, and presents the app as a clean operations dashboard.")
+                .append("</p>");
+        body.append("<div class='hero-metrics'>");
+        body.append(metricCard("Embedded Jetty", "Hardened session and route handling"));
+        body.append(metricCard("SQLite", "Prepared statements and hashed passwords"));
+        body.append(metricCard("Responsive UI", "Single shared design system"));
+        body.append("</div>");
+        body.append("</div>");
+        body.append("</section>");
 
-	 /*
-         * (non-Javadoc)
-         * 
-         * @see
-         * javax.servlet.http.HttpServlet#doPost(javax.servlet.http.HttpServletRequest,
-         * javax.servlet.http.HttpServletResponse)
-         * 
-         * Retrieve username and password from HttpServletRequest.
-         * Authenticate the username and password
-	 * if the username does not exits, create a new account 
-         * 
-         */
-        @Override
-        protected void doPost(HttpServletRequest req, HttpServletResponse res) throws IOException {
-			String username = req.getParameter("username");
-            String password = req.getParameter("password");
- 
-            if (username != null && !username.equals(new String(""))){
-                if(Database.authenticateUser(username, password)){
-                    req.getSession(true).setAttribute("username", username);
-                    req.getSession().setAttribute("clicks", 0);
-                        
-                    // redirect to main page
-                    res.sendRedirect("/account");}
-                else {
-                    res.sendRedirect("/welcome?loginMessage=Wrong Username of Password");
-                }
-            } else { 
-				res.sendRedirect("/welcome");
-            }	
-	}
+        body.append("<section class='auth-panel'>");
+        body.append("<div class='card card--auth'>");
+        body.append("<h2 class='section-title'>Sign in</h2>");
+        body.append("<p class='section-subtitle'>Use one of the seeded demo accounts to access the dashboard.</p>");
+        body.append(HtmlUtil.alert("error", error));
+        body.append("<form method='POST' action='/welcome' class='stack-lg'>");
+        body.append("<div class='field'>");
+        body.append("<label class='label' for='username'>Username</label>");
+        body.append(HtmlUtil.formInput("text", "username", "username", "", "Enter your username", "username", true));
+        body.append("</div>");
+        body.append("<div class='field'>");
+        body.append("<label class='label' for='password'>Password</label>");
+        body.append(HtmlUtil.formInput("password", "password", "password", "", "Enter your password",
+                "current-password", true));
+        body.append("</div>");
+        body.append("<button class='button button--primary button--full' type='submit'>Access Dashboard</button>");
+        body.append("</form>");
+        body.append("<div class='divider'></div>");
+        body.append("<div class='demo-credentials'>");
+        body.append("<div><strong>Admin:</strong> admin / adminPassword</div>");
+        body.append("<div><strong>User:</strong> user1 / user1Password</div>");
+        body.append("</div>");
+        body.append("</div>");
+        body.append("</section>");
+        body.append("</main>");
+
+        return HtmlUtil.page("Welcome | " + AppConfig.APP_NAME, "", null, null, body.toString());
+    }
+
+    private String metricCard(String title, String copy) {
+        return "<article class='metric-card'>"
+                + "<div class='metric-card__title'>" + HtmlUtil.escapeHtml(title) + "</div>"
+                + "<div class='metric-card__copy'>" + HtmlUtil.escapeHtml(copy) + "</div>"
+                + "</article>";
+    }
+
+    private String safe(String value) {
+        return value == null ? null : value.trim();
+    }
 }
